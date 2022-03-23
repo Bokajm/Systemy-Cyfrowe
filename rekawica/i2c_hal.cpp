@@ -4,6 +4,7 @@
 namespace i2c {
 constexpr uint8_t START = 0x08;
 constexpr uint8_t SLA_W_ACK_RECEIVED = 0x18;
+constexpr uint8_t DATA_ACK_RECEIVED = 0x28;
 
 void init() {
   DDRD &= 0b11111100; //DDRXx = 0 -> pinx in port X set as input(data direction register)
@@ -35,8 +36,8 @@ void sendByte(uint8_t data){
   TWCR = (1<<TWINT) | (1<<TWEN);//Set int bit and enable bit to send
 }
 
-uint8_t readAddr(uint8_t deviceAddr, uint8_t registerAddr) {
-  start();
+bool sendRegisterAddrToSlave(uint8_t deviceAddr, uint8_t registerAddr){
+    start();
   wait();
   if (!checkStatus(START)) {
     Serial.println("Error sending start condition");
@@ -44,8 +45,21 @@ uint8_t readAddr(uint8_t deviceAddr, uint8_t registerAddr) {
   sendByte((deviceAddr<<1) & 0xFE);//Send slave addr with write command
   wait();
   if(!checkStatus(SLA_W_ACK_RECEIVED)){
-    Serial.println("Did not receive ACK");
+    Serial.println("Did not receive ACK on addr");
+    return false;
   }
+  sendByte(registerAddr);
+  wait();
+  if(!checkStatus(DATA_ACK_RECEIVED)){
+    Serial.println("Did not receive ACK on data");
+    return false;
+  }
+  return true;
+}
 
+uint8_t readFromAddr(uint8_t deviceAddr, uint8_t registerAddr) {
+  if(!sendRegisterAddrToSlave(deviceAddr, registerAddr)){
+    return;
+  }
 }
 }// i2c

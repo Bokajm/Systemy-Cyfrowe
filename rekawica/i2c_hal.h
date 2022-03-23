@@ -4,6 +4,6 @@
 namespace i2c {
 
 void init();
-uint8_t readAddr(uint8_t deviceAddr, uint8_t registerAddr);
+uint8_t readFromAddr(uint8_t deviceAddr, uint8_t registerAddr);
 
 }//i2c
