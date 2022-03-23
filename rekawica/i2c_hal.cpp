@@ -1,7 +1,9 @@
 #include "i2c_hal.h"
-#include <avr/io.h>
+#include <Arduino.h>
 
 namespace i2c {
+constexpr uint8_t START = 0x08;
+constexpr uint8_t SLA_W_ACK_RECEIVED = 0x18;
 
 void init() {
   DDRD &= 0b11111100; //DDRXx = 0 -> pinx in port X set as input(data direction register)
@@ -24,7 +26,26 @@ void start() {
   //set enable interface
 }
 
+bool checkStatus(uint8_t wantedStatus) {
+  return (TWSR & 0xF8) == wantedStatus;//Check if status bits are as expected
+}
+
+void sendByte(uint8_t data){
+  TWDR = data;//Load data into data register
+  TWCR = (1<<TWINT) | (1<<TWEN);//Set int bit and enable bit to send
+}
+
 uint8_t readAddr(uint8_t deviceAddr, uint8_t registerAddr) {
+  start();
+  wait();
+  if (!checkStatus(START)) {
+    Serial.println("Error sending start condition");
+  }
+  sendByte((deviceAddr<<1) & 0xFE);//Send slave addr with write command
+  wait();
+  if(!checkStatus(SLA_W_ACK_RECEIVED)){
+    Serial.println("Did not receive ACK");
+  }
 
 }
 }// i2c
