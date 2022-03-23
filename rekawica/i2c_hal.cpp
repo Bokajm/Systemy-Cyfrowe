@@ -5,6 +5,8 @@ namespace i2c {
 constexpr uint8_t START = 0x08;
 constexpr uint8_t SLA_W_ACK_RECEIVED = 0x18;
 constexpr uint8_t DATA_ACK_RECEIVED = 0x28;
+constexpr uint8_t RESTART = 0x10;
+constexpr uint8_t SLA_R_ACK_RECEIVED = 0x40;
 
 void init() {
   DDRD &= 0b11111100; //DDRXx = 0 -> pinx in port X set as input(data direction register)
@@ -31,35 +33,59 @@ bool checkStatus(uint8_t wantedStatus) {
   return (TWSR & 0xF8) == wantedStatus;//Check if status bits are as expected
 }
 
-void sendByte(uint8_t data){
+void sendByte(uint8_t data) {
   TWDR = data;//Load data into data register
-  TWCR = (1<<TWINT) | (1<<TWEN);//Set int bit and enable bit to send
+  TWCR = (1 << TWINT) | (1 << TWEN); //Set int bit and enable bit to send
 }
 
-bool sendRegisterAddrToSlave(uint8_t deviceAddr, uint8_t registerAddr){
-    start();
+bool sendRegisterAddrToSlave(uint8_t deviceAddr, uint8_t registerAddr) {
+  start();
   wait();
   if (!checkStatus(START)) {
     Serial.println("Error sending start condition");
   }
-  sendByte((deviceAddr<<1) & 0xFE);//Send slave addr with write command
+  sendByte((deviceAddr << 1) & 0xFE); //Send slave addr with write command
   wait();
-  if(!checkStatus(SLA_W_ACK_RECEIVED)){
+  if (!checkStatus(SLA_W_ACK_RECEIVED)) {
     Serial.println("Did not receive ACK on addr");
     return false;
   }
   sendByte(registerAddr);
   wait();
-  if(!checkStatus(DATA_ACK_RECEIVED)){
+  if (!checkStatus(DATA_ACK_RECEIVED)) {
     Serial.println("Did not receive ACK on data");
     return false;
   }
   return true;
 }
 
-uint8_t readFromAddr(uint8_t deviceAddr, uint8_t registerAddr) {
-  if(!sendRegisterAddrToSlave(deviceAddr, registerAddr)){
-    return;
+void stop() {
+  TWCR = (1 << TWINT) | (1 << TWSTO) | (1 << TWEN);
+}
+
+uint8_t readByteFromSlave(uint8_t deviceAddr) {
+  start();//Restart actually, but command is the same
+  wait();
+  if (!checkStatus(RESTART)) {
+    Serial.println("Error sending restart condition");
   }
+  sendByte(deviceAddr << 1 | 1); //Slave addr with read command
+  wait();
+  if (!checkStatus(SLA_R_ACK_RECEIVED)) {
+    Serial.println("Didn't receive ACK on 2nd addr");
+  }
+
+  TWCR = 1 << TWINT; //Let us receive data;
+  wait();
+  uint8_t receivedByte = TWDR;
+  stop();
+  return receivedByte;
+}
+
+uint8_t readFromAddr(uint8_t deviceAddr, uint8_t registerAddr) {
+  if (!sendRegisterAddrToSlave(deviceAddr, registerAddr)) {
+    return 0;
+  }
+  return readByteFromSlave(deviceAddr);
 }
 }// i2c
