@@ -40,6 +40,11 @@ void start() {
   //set enable interface
 }
 
+void stop() {
+  TWCR = (1 << TWINT) | (1 << TWSTO) | (1 << TWEN);
+  while(TWCR & (1<<TWSTO));
+}
+
 bool checkStatus(uint8_t wantedStatus) {
   return (TWSR & 0xF8) == wantedStatus;//Check if status bits are as expected
 }
@@ -68,10 +73,6 @@ bool sendRegisterAddrToSlave(uint8_t deviceAddr, uint8_t registerAddr) {
     return false;
   }
   return true;
-}
-
-void stop() {
-  TWCR = (1 << TWINT) | (1 << TWSTO) | (1 << TWEN);
 }
 
 uint8_t readByteFromSlave(uint8_t deviceAddr) {
