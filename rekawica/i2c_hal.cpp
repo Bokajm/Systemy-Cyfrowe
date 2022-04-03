@@ -8,6 +8,17 @@ constexpr uint8_t DATA_ACK_RECEIVED = 0x28;
 constexpr uint8_t RESTART = 0x10;
 constexpr uint8_t SLA_R_ACK_RECEIVED = 0x40;
 
+namespace {
+template<typename... T>
+void log(T... t) {
+  ((Serial.println(t)), ...);
+}
+
+void logb(uint8_t b){
+  Serial.println(b, BIN);
+}
+}
+
 void init() {
   DDRD &= 0b11111100; //DDRXx = 0 -> pinx in port X set as input(data direction register)
   PORTD |= 3; //PORTXx = 1 -> pull-up enabled on pin x in port X(port register)
@@ -18,7 +29,7 @@ void init() {
 }
 
 void wait() {
-  while (!(TWCR & (1 << TWINT))) ;
+  while (!(TWCR & (1 << TWINT)));
   //Wait until interrupt bit in control register becomes 0
 }
 
@@ -42,7 +53,7 @@ bool sendRegisterAddrToSlave(uint8_t deviceAddr, uint8_t registerAddr) {
   start();
   wait();
   if (!checkStatus(START)) {
-    Serial.println("Error sending start condition");
+    log("Error sending start condition");
   }
   sendByte((deviceAddr << 1) & 0xFE); //Send slave addr with write command
   wait();
@@ -75,7 +86,7 @@ uint8_t readByteFromSlave(uint8_t deviceAddr) {
     Serial.println("Didn't receive ACK on 2nd addr");
   }
 
-  TWCR = 1 << TWINT; //Let us receive data;
+  TWCR = 1 << TWINT | 1<<TWEN; //Let us receive data;
   wait();
   uint8_t receivedByte = TWDR;
   stop();
