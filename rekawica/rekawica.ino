@@ -1,4 +1,7 @@
 #include "i2c_hal.h"
+#include "MPU6050.h"
+
+MPU6050 sensor1{0x68};
 
 void setup() {
   // put your setup code here, to run once:
