@@ -6,7 +6,7 @@ MPU6050::MPU6050(uint8_t addr)
   : deviceAddress{addr} {}
 
 bool MPU6050::begin() {
-  if(!i2c::ping(deviceAddress) || (readByte(0x75) != 0x68)){
+  if (!i2c::ping(deviceAddress) || (readByte(0x75) != 0x68)) {
     return false;
   }
   Serial.println("Ping success");
@@ -16,6 +16,16 @@ bool MPU6050::begin() {
   return true;
 }
 
+vec3 MPU6050::readRawAccel() {
+  uint8_t buffer[6];
+  readManyBytes(0x3B, buffer, 6);
+  vec3 ret;
+  ret.x = (buffer[0] << 8) | buffer[1];
+  ret.y = (buffer[2] << 8) | buffer[3];
+  ret.z = (buffer[4] << 8) | buffer[5];
+  return ret;
+}
+
 void MPU6050::writeByte(uint8_t addr, uint8_t val)
 {
   i2c::writeToAddr(deviceAddress, addr, val);
@@ -23,4 +33,8 @@ void MPU6050::writeByte(uint8_t addr, uint8_t val)
 uint8_t MPU6050::readByte(uint8_t addr)
 {
   return i2c::readFromAddr(deviceAddress, addr);
+}
+void MPU6050::readManyBytes(uint8_t addr, uint8_t *buffer, uint8_t n)
+{
+  i2c::readMultipleFromAddr(deviceAddress, addr, buffer, n);
 }
