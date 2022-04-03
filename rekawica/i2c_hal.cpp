@@ -14,7 +14,7 @@ void log(T... t) {
   ((Serial.println(t)), ...);
 }
 
-void logb(uint8_t b){
+void logb(uint8_t b) {
   Serial.println(b, BIN);
 }
 }
@@ -86,7 +86,7 @@ uint8_t readByteFromSlave(uint8_t deviceAddr) {
     Serial.println("Didn't receive ACK on 2nd addr");
   }
 
-  TWCR = 1 << TWINT | 1<<TWEN; //Let us receive data;
+  TWCR = 1 << TWINT | 1 << TWEN; //Let us receive data;
   wait();
   uint8_t receivedByte = TWDR;
   stop();
@@ -98,5 +98,13 @@ uint8_t readFromAddr(uint8_t deviceAddr, uint8_t registerAddr) {
     return 0;
   }
   return readByteFromSlave(deviceAddr);
+}
+void writeToAddr(uint8_t deviceAddr, uint8_t registerAddr, uint8_t val) {
+  if (!sendRegisterAddrToSlave(deviceAddr, registerAddr)) {
+    return;
+  }
+  sendByte(val);
+  wait();
+  stop();
 }
 }// i2c
