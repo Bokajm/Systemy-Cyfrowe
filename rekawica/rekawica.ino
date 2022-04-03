@@ -10,6 +10,7 @@ void setup() {
   i2c::init();
   Serial.println("Init done");
   delay(1000);
+  Serial.println(sensor1.begin());
 }
 
 void loop() {

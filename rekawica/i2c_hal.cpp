@@ -107,4 +107,20 @@ void writeToAddr(uint8_t deviceAddr, uint8_t registerAddr, uint8_t val) {
   wait();
   stop();
 }
+
+bool ping(uint8_t deviceAddr) {
+  bool success=false;
+  start();
+  wait();
+  if (!checkStatus(START)) {
+    log("Error sending start condition");
+  }
+  sendByte((deviceAddr << 1) & 0xFE); //Send slave addr with write command
+  wait();
+  if (checkStatus(SLA_W_ACK_RECEIVED)) {
+    success=true;
+  }
+  stop();
+  return success;
+}
 }// i2c
