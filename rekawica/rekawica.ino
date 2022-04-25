@@ -6,7 +6,7 @@ MPU6050 sensor1{0x68};
 void setup() {
   // put your setup code here, to run once:
   Serial1.begin(115200);
-  while (!Serial) ;
+  while (!Serial1) ;
   i2c::init();
   Serial1.println("Init done");
   delay(1000);
