@@ -9,7 +9,7 @@ bool MPU6050::begin() {
   if (!i2c::ping(deviceAddress) || (readByte(0x75) != 0x68)) {
     return false;
   }
-  Serial.println("Ping success");
+  //Serial.println("Ping success");
   writeByte(0x6B, 0b00000001);//Set clock source to gyro x, enable everything
   writeByte(0x1B, 0b00001000);//Set gyroscope full scale to +-500deg/s
   writeByte(0x1C, 0b00001000);//Set accelerometer full range to 4g.

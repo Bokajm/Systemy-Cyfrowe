@@ -5,25 +5,25 @@ MPU6050 sensor1{0x68};
 
 void setup() {
   // put your setup code here, to run once:
-  Serial.begin(115200);
+  Serial1.begin(115200);
   while (!Serial) ;
   i2c::init();
-  Serial.println("Init done");
+  Serial1.println("Init done");
   delay(1000);
-  Serial.println(sensor1.begin());
+  Serial1.println(sensor1.begin());
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
   //Serial.print("Received byte: ");
   //Serial.println(i2c::readFromAddr(0x68, 0x75), HEX);
-  Serial.println("==================================");
-  auto ret = sensor1.readRawGyro();
-  Serial.print("X: ");
-  Serial.println(ret.x);
-  Serial.print("Y: ");
-  Serial.println(ret.y);
-  Serial.print("Z: ");
-  Serial.println(ret.z);
+  Serial1.println("==================================");
+  auto ret = sensor1.readRawAccel();
+  Serial1.print("X: ");
+  Serial1.println(ret.x);
+  Serial1.print("Y: ");
+  Serial1.println(ret.y);
+  Serial1.print("Z: ");
+  Serial1.println(ret.z);
   delay(1000);
 }

@@ -11,11 +11,11 @@ constexpr uint8_t SLA_R_ACK_RECEIVED = 0x40;
 namespace {
 template<typename... T>
 void log(T... t) {
-  ((Serial.println(t)), ...);
+  ((Serial1.println(t)), ...);
 }
 
 void logb(uint8_t b) {
-  Serial.println(b, BIN);
+  Serial1.println(b, BIN);
 }
 }
 
@@ -63,13 +63,13 @@ bool sendRegisterAddrToSlave(uint8_t deviceAddr, uint8_t registerAddr) {
   sendByte((deviceAddr << 1) & 0xFE); //Send slave addr with write command
   wait();
   if (!checkStatus(SLA_W_ACK_RECEIVED)) {
-    Serial.println("Did not receive ACK on addr");
+    log("Did not receive ACK on addr");
     return false;
   }
   sendByte(registerAddr);
   wait();
   if (!checkStatus(DATA_ACK_RECEIVED)) {
-    Serial.println("Did not receive ACK on data");
+    log("Did not receive ACK on data");
     return false;
   }
   return true;
@@ -79,12 +79,12 @@ uint8_t readByteFromSlave(uint8_t deviceAddr) {
   start();//Restart actually, but command is the same
   wait();
   if (!checkStatus(RESTART)) {
-    Serial.println("Error sending restart condition");
+    log("Error sending restart condition");
   }
   sendByte(deviceAddr << 1 | 1); //Slave addr with read command
   wait();
   if (!checkStatus(SLA_R_ACK_RECEIVED)) {
-    Serial.println("Didn't receive ACK on 2nd addr");
+    log("Didn't receive ACK on 2nd addr");
   }
 
   TWCR = 1 << TWINT | 1 << TWEN; //Let us receive data;
@@ -108,12 +108,12 @@ void readMultipleFromAddr(uint8_t deviceAddr, uint8_t registerAddr, uint8_t *buf
   start();//Restart actually, but command is the same
   wait();
   if (!checkStatus(RESTART)) {
-    Serial.println("Error sending restart condition");
+    log("Error sending restart condition");
   }
   sendByte(deviceAddr << 1 | 1); //Slave addr with read command
   wait();
   if (!checkStatus(SLA_R_ACK_RECEIVED)) {
-    Serial.println("Didn't receive ACK on 2nd addr");
+    log("Didn't receive ACK on 2nd addr");
   }
   for (uint8_t i = 0; i < n - 1; ++i)
   {
