@@ -40,6 +40,11 @@ void start() {
   //set enable interface
 }
 
+void stop() {
+  TWCR = (1 << TWINT) | (1 << TWSTO) | (1 << TWEN);
+  while (TWCR & (1 << TWSTO));
+}
+
 bool checkStatus(uint8_t wantedStatus) {
   return (TWSR & 0xF8) == wantedStatus;//Check if status bits are as expected
 }
@@ -70,10 +75,6 @@ bool sendRegisterAddrToSlave(uint8_t deviceAddr, uint8_t registerAddr) {
   return true;
 }
 
-void stop() {
-  TWCR = (1 << TWINT) | (1 << TWSTO) | (1 << TWEN);
-}
-
 uint8_t readByteFromSlave(uint8_t deviceAddr) {
   start();//Restart actually, but command is the same
   wait();
@@ -99,6 +100,33 @@ uint8_t readFromAddr(uint8_t deviceAddr, uint8_t registerAddr) {
   }
   return readByteFromSlave(deviceAddr);
 }
+
+void readMultipleFromAddr(uint8_t deviceAddr, uint8_t registerAddr, uint8_t *buffer, uint8_t n) {
+  if (!sendRegisterAddrToSlave(deviceAddr, registerAddr)) {
+    return;
+  }
+  start();//Restart actually, but command is the same
+  wait();
+  if (!checkStatus(RESTART)) {
+    Serial.println("Error sending restart condition");
+  }
+  sendByte(deviceAddr << 1 | 1); //Slave addr with read command
+  wait();
+  if (!checkStatus(SLA_R_ACK_RECEIVED)) {
+    Serial.println("Didn't receive ACK on 2nd addr");
+  }
+  for (uint8_t i = 0; i < n - 1; ++i)
+  {
+    TWCR = 1 << TWINT | 1 << TWEN | 1 << TWEA; //Let us receive data;
+    wait();
+    buffer[i] = TWDR;
+  }
+  TWCR = 1 << TWINT | 1 << TWEN; //Let us receive data;
+  wait();
+  buffer[n - 1] = TWDR;
+  stop();
+}
+
 void writeToAddr(uint8_t deviceAddr, uint8_t registerAddr, uint8_t val) {
   if (!sendRegisterAddrToSlave(deviceAddr, registerAddr)) {
     return;
@@ -106,5 +134,21 @@ void writeToAddr(uint8_t deviceAddr, uint8_t registerAddr, uint8_t val) {
   sendByte(val);
   wait();
   stop();
+}
+
+bool ping(uint8_t deviceAddr) {
+  bool success = false;
+  start();
+  wait();
+  if (!checkStatus(START)) {
+    log("Error sending start condition");
+  }
+  sendByte((deviceAddr << 1) & 0xFE); //Send slave addr with write command
+  wait();
+  if (checkStatus(SLA_W_ACK_RECEIVED)) {
+    success = true;
+  }
+  stop();
+  return success;
 }
 }// i2c
