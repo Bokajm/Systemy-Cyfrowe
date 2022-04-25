@@ -18,7 +18,7 @@ void loop() {
   //Serial.print("Received byte: ");
   //Serial.println(i2c::readFromAddr(0x68, 0x75), HEX);
   Serial.println("==================================");
-  auto ret = sensor1.readRawAccel();
+  auto ret = sensor1.readRawGyro();
   Serial.print("X: ");
   Serial.println(ret.x);
   Serial.print("Y: ");
