@@ -1,8 +1,8 @@
 #include "temp_mat.h"
-#include <cmath>
+#include <math.h>
 
 namespace mat {
-  constexpr float sensitivity = 100.0f;
+  constexpr float sensitivity = 25.0f;
 vec2 calculateMouseMovement(vec3 acc, vec3 gyro) {
   vec2 res;
 
