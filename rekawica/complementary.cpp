@@ -4,7 +4,9 @@
 void complementaryFilter::update(const vec3& accelData, const vec3& gyroData)
 {
   integrateGyroData(gyroData);
+  log("Integrated gyro val: x=", gyroIntegratedAngles.x, ", y=", gyroIntegratedAngles.y, "\r\n");
   const auto accelMagnitude = calculateAccelMagnitude(accelData);
+
   if (accelMagnitudeValid(accelMagnitude))
   {
     const auto x = calculateAngle(accelData.x, accelData.z);
@@ -16,8 +18,8 @@ void complementaryFilter::update(const vec3& accelData, const vec3& gyroData)
 
 void complementaryFilter::integrateGyroData(const vec3& gyroSample)
 {
-  gyroIntegratedAngles.x += (static_cast<float>(gyroSample.x) / gyroSensitivity) * integratingTimeInterval;
-  gyroIntegratedAngles.y += (static_cast<float>(gyroSample.y) / gyroSensitivity) * integratingTimeInterval;
+  gyroIntegratedAngles.y += (static_cast<float>(gyroSample.x)) * integratingTimeInterval;
+  gyroIntegratedAngles.x -= (static_cast<float>(gyroSample.y)) * integratingTimeInterval;
 }
 
 int32_t complementaryFilter::calculateAccelMagnitude(const vec3& accelData) const
@@ -28,12 +30,12 @@ int32_t complementaryFilter::calculateAccelMagnitude(const vec3& accelData) cons
 
 float complementaryFilter::calculateAngle(int16_t side, int16_t down) const
 {
-  return atan2f(side, down) * accelSensitivity;
+  return atan2(side * 4, down) * accelSensitivity;
 }
 
 void complementaryFilter::updateStoredAngles(float x, float y)
 {
   constexpr int16_t scalingFactor = 256;
-  lastCalculatedAngles.x = (gyroIntegratedAngles.x / scalingFactor) * gyroSensitivity + (x / scalingFactor) * accelSensitivity;
-  lastCalculatedAngles.y = (gyroIntegratedAngles.y / scalingFactor) * gyroSensitivity + (y / scalingFactor) * accelSensitivity;
+  lastCalculatedAngles.x = (float)(gyroIntegratedAngles.x / scalingFactor) * gyroWeight + (float)(x / scalingFactor) * accelWeight;
+  lastCalculatedAngles.y = (float)(gyroIntegratedAngles.y / scalingFactor) * gyroWeight + (float)(y / scalingFactor) * accelWeight;
 }

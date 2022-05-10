@@ -1,4 +1,5 @@
 #include "i2c_hal.h"
+#include "ownTypes.h"
 #include <Arduino.h>
 
 namespace i2c {
@@ -8,16 +9,12 @@ constexpr uint8_t DATA_ACK_RECEIVED = 0x28;
 constexpr uint8_t RESTART = 0x10;
 constexpr uint8_t SLA_R_ACK_RECEIVED = 0x40;
 
-namespace {
-template<typename... T>
-void log(T... t) {
-  ((Serial1.println(t)), ...);
-}
+
 
 void logb(uint8_t b) {
   Serial1.println(b, BIN);
 }
-}
+
 
 void init() {
   DDRD &= 0b11111100; //DDRXx = 0 -> pinx in port X set as input(data direction register)

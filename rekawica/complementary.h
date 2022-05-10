@@ -3,10 +3,10 @@
 
 class complementaryFilter
 {
-    constexpr static float accelWeight = 1.0f;
+    constexpr static float accelWeight = 0.0f;
     constexpr static float gyroWeight = 1.0f - accelWeight;
-    constexpr static float integratingTimeInterval = 0.01;
-    constexpr static float gyroSensitivity = (float)16384;
+    constexpr static float integratingTimeInterval = 0.005;
+    constexpr static float gyroSensitivity = (float)8192;
     constexpr static float accelSensitivity = (float)25;
   public:
     void update(const vec3& accelData, const vec3& gyroData);
