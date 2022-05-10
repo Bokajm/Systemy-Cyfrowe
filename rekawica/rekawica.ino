@@ -1,10 +1,12 @@
 #include "i2c_hal.h"
 #include "MPU6050.h"
 #include "temp_mat.h"
+#include "complementary.h"
 
 #include <Mouse.h>
 
 MPU6050 sensor1{0x68};
+complementaryFilter calculator;
 
 void setup() {
   // put your setup code here, to run once:
@@ -30,7 +32,9 @@ void loop() {
   //Serial1.println(ret.y);
   //Serial1.print("Z: ");
   //Serial1.println(ret.z);
-  const auto movement = mat::calculateMouseMovement(accel, gyro);
+  //const auto movement = mat::calculateMouseMovement(accel, gyro);
+  calculator.update(accel, gyro);
+  const auto movement = calculator.getAngles();
   Mouse.move(movement.y,movement.x,0);
   delay(10);
 }

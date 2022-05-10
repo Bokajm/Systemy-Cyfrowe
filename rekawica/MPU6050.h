@@ -1,9 +1,5 @@
 #pragma once
-#include <inttypes.h>
-
-struct vec3 {
-  int16_t x, y, z;
-};
+#include "ownTypes.h"
 
 class MPU6050 {
   public:

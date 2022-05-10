@@ -3,8 +3,8 @@
 
 namespace mat {
   constexpr float sensitivity = 25.0f;
-vec2 calculateMouseMovement(vec3 acc, vec3 gyro) {
-  vec2 res;
+vec2<int8_t> calculateMouseMovement(vec3 acc, vec3 gyro) {
+  vec2<int8_t> res;
 
   float x, y;
 
