@@ -3,10 +3,10 @@
 
 class complementaryFilter
 {
-    constexpr static float accelWeight = 0.98f;
+    constexpr static float accelWeight = 1.0f;
     constexpr static float gyroWeight = 1.0f - accelWeight;
     constexpr static float integratingTimeInterval = 0.01;
-    constexpr static float gyroSensitivity = (float)32768;
+    constexpr static float gyroSensitivity = (float)16384;
     constexpr static float accelSensitivity = (float)25;
   public:
     void update(const vec3& accelData, const vec3& gyroData);
@@ -17,12 +17,9 @@ class complementaryFilter
   private:
     void integrateGyroData(const vec3& gyroSample);
 
-    int32_t calculateAccelMagnitude(const vec3& accelData) const
-    {
-      return accelData.x + accelData.y + accelData.z;
-    }
+    int32_t calculateAccelMagnitude(const vec3& accelData) const;
 
-    bool accelMagnitudeValid(uint32_t magnitude)
+    bool accelMagnitudeValid(int32_t magnitude)
     {
       return magnitude > 8192 and magnitude < 32768;
     }

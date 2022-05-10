@@ -2,7 +2,7 @@
 #include <math.h>
 
 namespace mat {
-  constexpr float sensitivity = 25.0f;
+constexpr float sensitivity = 25.0f;
 vec2<int8_t> calculateMouseMovement(vec3 acc, vec3 gyro) {
   vec2<int8_t> res;
 
@@ -24,8 +24,8 @@ vec2<int8_t> calculateMouseMovement(vec3 acc, vec3 gyro) {
     y = -1;
   }
 
-  res.x = (int8_t) (x*sensitivity);
-  res.y = (int8_t) (y*sensitivity);
+  res.x = (int8_t) (x * sensitivity);
+  res.y = (int8_t) (y * sensitivity);
   return res;
 }
 }
