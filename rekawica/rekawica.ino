@@ -36,5 +36,5 @@ void loop() {
   calculator.update(accel, gyro);
   const auto movement = calculator.getAngles();
   Mouse.move(movement.y,movement.x,0);
-  delay(5);
+  delay(10);
 }

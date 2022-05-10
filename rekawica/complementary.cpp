@@ -4,22 +4,24 @@
 void complementaryFilter::update(const vec3& accelData, const vec3& gyroData)
 {
   integrateGyroData(gyroData);
-  log("Integrated gyro val: x=", gyroIntegratedAngles.x, ", y=", gyroIntegratedAngles.y, "\r\n");
+  log("Raw values: x=", gyroData.x, ", y=", gyroData.y, ", z=", gyroData.z, "\t\t\t");
+  log("Integrated gyro val: x=", integratedAngles.x, ", y=", integratedAngles.y, "\r\n");
   const auto accelMagnitude = calculateAccelMagnitude(accelData);
 
   if (accelMagnitudeValid(accelMagnitude))
   {
     const auto x = calculateAngle(accelData.x, accelData.z);
     const auto y = calculateAngle(accelData.y, accelData.z);
-
+    //log("Raw values: x=", accelData.x, ", y=", accelData.y, ", z=", accelData.z, "\t\t");
+    //log("Current accel values: x=", x, ", y=", y, "\r\n");
     updateStoredAngles(x, y);
   }
 }
 
 void complementaryFilter::integrateGyroData(const vec3& gyroSample)
 {
-  gyroIntegratedAngles.y += (static_cast<float>(gyroSample.x)) * integratingTimeInterval;
-  gyroIntegratedAngles.x -= (static_cast<float>(gyroSample.y)) * integratingTimeInterval;
+  integratedAngles.y += (static_cast<float>(gyroSample.x) / gyroSensitivity) * integratingTimeInterval;
+  integratedAngles.x -= (static_cast<float>(gyroSample.y) / gyroSensitivity) * integratingTimeInterval;
 }
 
 int32_t complementaryFilter::calculateAccelMagnitude(const vec3& accelData) const
@@ -30,12 +32,13 @@ int32_t complementaryFilter::calculateAccelMagnitude(const vec3& accelData) cons
 
 float complementaryFilter::calculateAngle(int16_t side, int16_t down) const
 {
-  return atan2(side * 4, down) * accelSensitivity;
+  const auto tmp = atan2((float)side, (float)down);
+  return min(max(tmp, -1), 1) * accelSensitivity;;
 }
 
 void complementaryFilter::updateStoredAngles(float x, float y)
 {
   constexpr int16_t scalingFactor = 256;
-  lastCalculatedAngles.x = (float)(gyroIntegratedAngles.x / scalingFactor) * gyroWeight + (float)(x / scalingFactor) * accelWeight;
-  lastCalculatedAngles.y = (float)(gyroIntegratedAngles.y / scalingFactor) * gyroWeight + (float)(y / scalingFactor) * accelWeight;
+  integratedAngles.y = integratedAngles.y * gyroWeight + y * accelWeight;
+  integratedAngles.x = integratedAngles.x * gyroWeight + x * accelWeight;
 }

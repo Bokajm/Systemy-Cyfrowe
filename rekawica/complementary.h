@@ -3,15 +3,15 @@
 
 class complementaryFilter
 {
-    constexpr static float accelWeight = 0.0f;
+    constexpr static float accelWeight = 0.65f;
     constexpr static float gyroWeight = 1.0f - accelWeight;
-    constexpr static float integratingTimeInterval = 0.005;
-    constexpr static float gyroSensitivity = (float)8192;
-    constexpr static float accelSensitivity = (float)25;
+    constexpr static float integratingTimeInterval = 0.01;
+    constexpr static float gyroSensitivity = (float)256;
+    constexpr static float accelSensitivity = (float)30;
   public:
     void update(const vec3& accelData, const vec3& gyroData);
     vec2<int8_t> getAngles() const {
-      return lastCalculatedAngles;
+      return integratedAngles;
     }
 
   private:
@@ -28,6 +28,5 @@ class complementaryFilter
     void updateStoredAngles(float x, float y);
 
 
-    vec2<int16_t> gyroIntegratedAngles{};
-    vec2<int8_t> lastCalculatedAngles{};
+    vec2<int8_t> integratedAngles{};
 };
