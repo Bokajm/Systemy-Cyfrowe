@@ -9,6 +9,10 @@ MPU6050 sensor1{0x68};
 MPU6050 sensor2{0x69};
 complementaryFilter calculator;
 
+uint32_t lastToggle = 0;
+bool lastState = false;
+bool state = false;
+
 void setup() {
   // put your setup code here, to run once:
   Serial1.begin(115200);
@@ -40,19 +44,30 @@ void loop() {
   //const auto movement = mat::calculateMouseMovement(accel, gyro);
   calculator.update(accel, gyro);
   const auto movement = calculator.getAngles();
-  Mouse.move(movement.y,movement.x,0);
+  Mouse.move(movement.y, movement.x, 0);
   const auto m2 = mat::calculateMouseMovement(accel2, gyro2);
 
-  if(!Mouse.isPressed()){
-    if(m2.x < -20){
-      Mouse.press();
+  if (m2.x < -20) {
+    state = true;
+  }
+  if (m2.x > -15) {
+    state = false;
+  }
+
+  if (state != lastState) {
+    uint32_t now = millis();
+    if (now - lastToggle > 50) {
+      if (!Mouse.isPressed() && state == true) {
+        Mouse.press();
+      }
     }
-  } else {
-    if(m2.x > -15){
+    if (Mouse.isPressed() && state == false) {
       Mouse.release();
     }
+    lastToggle = now;
+    lastState = state;
   }
-  
+
   log("S1.x=", movement.x, ", S1.y=", movement.y, ",\tS2.x=", m2.x, ", S2.y=", m2.y, "\r\n");
   delay(10);
 }
