@@ -10,10 +10,10 @@ vec2<int8_t> calculateMouseMovement(vec3 acc, vec3 gyro) {
 
   x = atan2((float)acc.x, (float)acc.z);
   if (x > 1) {
-    x = 1;
+    x = -10;
   }
-  if (x < -1) {
-    x = -1;
+  if (x < -10) {
+    x = -10;
   }
 
   y = atan2((float)acc.y, (float)acc.z);

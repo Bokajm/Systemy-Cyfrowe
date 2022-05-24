@@ -4,8 +4,8 @@
 void complementaryFilter::update(const vec3& accelData, const vec3& gyroData)
 {
   integrateGyroData(gyroData);
-  log("Raw values: x=", gyroData.x, ", y=", gyroData.y, ", z=", gyroData.z, "\t\t\t");
-  log("Integrated gyro val: x=", integratedAngles.x, ", y=", integratedAngles.y, "\r\n");
+  //log("Raw values: x=", gyroData.x, ", y=", gyroData.y, ", z=", gyroData.z, "\t\t\t");
+  //log("Integrated gyro val: x=", integratedAngles.x, ", y=", integratedAngles.y, "\r\n");
   const auto accelMagnitude = calculateAccelMagnitude(accelData);
 
   if (accelMagnitudeValid(accelMagnitude))
